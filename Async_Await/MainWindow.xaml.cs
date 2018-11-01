@@ -29,19 +29,20 @@ namespace Async_Await
             InitializeComponent();
         }
 
-        Dispatcher disp = Dispatcher.CurrentDispatcher;
-        static long Factorial(int n, MainWindow w)
+        Dispatcher dispFact = Dispatcher.CurrentDispatcher;
+        long Factorial(int n)
         {
-            //UpdateProgressBarDelegate updProgress = new UpdateProgressBarDelegate(w.ProgressBarFact.SetValue);
+            //UpdateProgressBarDelegate updProgress = new UpdateProgressBarDelegate(ProgressBarFact.SetValue);
             //double value = 0;
+            dispFact.Invoke(() => { ProgressBarFact.Value = 0; });
             float step = 100 / n;
             long result = 1;
             for (int i = 1; i <= n; i++)
             {
                 result *= i;
                 Thread.Sleep(500);
-                w.disp.Invoke(() => { w.ProgressBarFact.Value += step; });
-                //w.Dispatcher.Invoke(updProgress, new object[] { ProgressBar.ValueProperty, value += step });
+                dispFact.Invoke(() => { ProgressBarFact.Value += step; });
+                //Dispatcher.Invoke(updProgress, new object[] { ProgressBar.ValueProperty, value += step });
 
                 //w.ProgressBarFact.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new DispatcherOperationCallback(delegate
                 //{
@@ -51,27 +52,52 @@ namespace Async_Await
             }
             return result;
         }
-        static async void FactorialAsync(int n, MainWindow w)
+        async Task<long> FactorialAsync(int n)
         {
-            long res = await Task.Run(() => Factorial(n, w));
+            long res = await Task.Run(() => Factorial(n));
 
-            w.TextBlockFactRes.Text = "Factorial - " + res;
+            return res;
         }
-        private void ButtonFact_Click(object sender, RoutedEventArgs e)
+        private async void ButtonFact_Click(object sender, RoutedEventArgs e)
         {
-            FactorialAsync(Convert.ToInt32(TextBoxFact.Text), this);
+            long resFact = await FactorialAsync(Convert.ToInt32(TextBoxFact.Text));
+            TextBlockFactRes.Text = "Factorial - " + resFact;
         }
 
-        private void ButtonFib_Click(object sender, RoutedEventArgs e)
+        private async void ButtonFib_Click(object sender, RoutedEventArgs e)
         {
-            long result = 1;
+            long result = await FibonacciAsync(Convert.ToInt32(TextBoxFib.Text));
 
-            for (int i = 1; i <= Convert.ToInt32(TextBoxFib.Text); i++)
+            TextBlockFibRes.Text = "Fibonacci - " + result;
+        }
+
+        async Task<long> FibonacciAsync(int n)
+        {
+            long res = await Task.Run(() => Fibonacci(n));
+
+            return res;
+        }
+        Dispatcher dispFib = Dispatcher.CurrentDispatcher;
+
+        int Fibonacci(int f)
+        {
+            dispFib.Invoke(() => { ProgressBarFib.Value = 0; });
+            float step = 100 / f;
+
+            if (f == 1)
+                return f;
+
+            int result = 0, first = 0, second;
+            second = 1;
+            for (int i = 1; i < f; i++)
             {
-                result *= i;
+                result = first + second;
+                first = second;
+                second = result;
+                dispFib.Invoke(() => { ProgressBarFib.Value += step; });
                 Thread.Sleep(300);
             }
-            TextBlockFibRes.Text = "Fibonacci - " + result;
+            return result;
         }
     }
 }

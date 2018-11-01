@@ -57,6 +57,14 @@
             Margin="32,208,0,71"
             FontSize="20"
             Text="Fibonacci - " />
-        <ProgressBar Name="ProgressBarFact" Margin="10,253,10,26" />
+        <ProgressBar
+            Name="ProgressBarFact"
+            Grid.Column="0"
+            Margin="10,253,10,26" />
+        <ProgressBar
+            Name="ProgressBarFib"
+            Grid.Column="1"
+            Margin="10,253,10,26" />
+
     </Grid>
 </Window>
